@@ -230,11 +230,30 @@ class InterviewAutomationSystem:
             logger.error("Failed to send interview email to %s: %s", candidate.email, e, exc_info=True)
 
 
-# Exported instance + start/stop helpers (match your original API)
-interview_automation = InterviewAutomationSystem()
+# # Exported instance + start/stop helpers (match your original API)
+# interview_automation = InterviewAutomationSystem()
 
-def start_interview_automation() -> None:
+# def start_interview_automation() -> None:
+#     interview_automation.start()
+
+# def stop_interview_automation() -> None:
+#     interview_automation.stop()
+class InterviewAutomation:
+    def __init__(self):
+        self.is_running = False
+        self.check_interval = 600  # 10 minutes
+    
+    def start(self):
+        self.is_running = True
+    
+    def stop(self):
+        self.is_running = False
+
+# Global instance
+interview_automation = InterviewAutomation()
+
+def start_interview_automation():
     interview_automation.start()
 
-def stop_interview_automation() -> None:
+def stop_interview_automation():
     interview_automation.stop()

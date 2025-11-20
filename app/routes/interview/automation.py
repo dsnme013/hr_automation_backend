@@ -12,6 +12,7 @@ from app.routes.candidates import get_cached_candidates
 from app.routes.interview.helpers import extract_resume_content
 from app.routes.interview.helpers import extract_skills_from_resume
 from app.extensions import logger
+from app.services import assessment_automation_system
 try:
     from app.extensions import executor
 except Exception:
@@ -27,47 +28,69 @@ except Exception:
 
 automation_bp = Blueprint('automation', __name__)
 
-@automation_bp.route('/api/interview-automation/status', methods=['GET', 'OPTIONS'])
-def get_automation_status():
-    """Get interview automation system status"""
+# @automation_bp.route('/api/interview-automation/status', methods=['GET', 'OPTIONS'])
+# def get_automation_status():
+#     """Get interview automation system status"""
+#     if request.method == 'OPTIONS':
+#         return '', 200
+    
+#     try:
+#         from interview_automation import interview_automation
+        
+#         status = {
+#             'is_running': interview_automation.is_running,
+#             'check_interval_minutes': interview_automation.check_interval / 60,
+#             'next_check': 'Running' if interview_automation.is_running else 'Stopped'
+#         }
+        
+#         # Get statistics
+#         session = SessionLocal()
+#         try:
+#             stats = {
+#                 'candidates_pending_interview': session.query(Candidate).filter(
+#                     and_(
+#                         Candidate.exam_completed == True,
+#                         Candidate.exam_percentage >= 70,
+#                         Candidate.interview_scheduled == False
+#                     )
+#                 ).count(),
+#                 'interviews_scheduled': session.query(Candidate).filter(
+#                     Candidate.interview_scheduled == True
+#                 ).count(),
+#                 'interviews_completed': session.query(Candidate).filter(
+#                     Candidate.interview_completed_at.isnot(None)
+#                 ).count()
+#             }
+#             status['statistics'] = stats
+#         finally:
+#             session.close()
+        
+#         return jsonify(status), 200
+        
+#     except Exception as e:
+#         logger.error(f"Error getting automation status: {e}")
+#         return jsonify({"error": str(e)}), 500
+@automation_bp.route('/api/assessment-automation/status', methods=['GET', 'OPTIONS'])
+def get_assessment_automation_status():
+    """Get assessment automation system status"""
     if request.method == 'OPTIONS':
         return '', 200
     
     try:
-        from interview_automation import interview_automation
+        from app.services.assessment_automation_system import get_assessment_status
+        status = get_assessment_status()
         
-        status = {
-            'is_running': interview_automation.is_running,
-            'check_interval_minutes': interview_automation.check_interval / 60,
-            'next_check': 'Running' if interview_automation.is_running else 'Stopped'
-        }
-        
-        # Get statistics
-        session = SessionLocal()
-        try:
-            stats = {
-                'candidates_pending_interview': session.query(Candidate).filter(
-                    and_(
-                        Candidate.exam_completed == True,
-                        Candidate.exam_percentage >= 70,
-                        Candidate.interview_scheduled == False
-                    )
-                ).count(),
-                'interviews_scheduled': session.query(Candidate).filter(
-                    Candidate.interview_scheduled == True
-                ).count(),
-                'interviews_completed': session.query(Candidate).filter(
-                    Candidate.interview_completed_at.isnot(None)
-                ).count()
-            }
-            status['statistics'] = stats
-        finally:
-            session.close()
-        
-        return jsonify(status), 200
+        return jsonify({
+            'is_running': status['is_running'],
+            'last_run': status['last_run'],
+            'pass_threshold': status['pass_threshold'],
+            'statistics': status['statistics'],
+            'pending': status['pending'],
+            'next_check': 'In 10 minutes' if status['is_running'] else 'Stopped'
+        }), 200
         
     except Exception as e:
-        logger.error(f"Error getting automation status: {e}")
+        logger.error(f"Error getting assessment automation status: {e}")
         return jsonify({"error": str(e)}), 500
 
 @automation_bp.route('/api/interview-automation/toggle', methods=['POST', 'OPTIONS'])
