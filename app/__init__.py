@@ -175,7 +175,7 @@ def create_app(config_object: str | None = None):
 
     # Enable CORS
     CORS(app,
-         origins=["http://localhost:3000", "http://127.0.0.1:3000", "http://127.0.0.1:3001"],
+         origins=["http://localhost:3000", "http://127.0.0.1:3000", "http://127.0.0.1:3001", "http://localhost:8080"],
          allow_headers=["Content-Type", "Authorization", "X-Requested-With", "Accept", "Cache-Control", "X-Api-Key"],
          methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
          supports_credentials=True,

@@ -12,7 +12,7 @@ from app.routes.candidates import get_cached_candidates
 from app.routes.interview.helpers import extract_resume_content
 from app.routes.interview.helpers import extract_skills_from_resume
 from app.extensions import logger
-from app.services import assessment_automation_system
+# from app.services import assessment_automation_system
 try:
     from app.extensions import executor
 except Exception:
@@ -70,28 +70,28 @@ automation_bp = Blueprint('automation', __name__)
 #     except Exception as e:
 #         logger.error(f"Error getting automation status: {e}")
 #         return jsonify({"error": str(e)}), 500
-@automation_bp.route('/api/assessment-automation/status', methods=['GET', 'OPTIONS'])
-def get_assessment_automation_status():
-    """Get assessment automation system status"""
-    if request.method == 'OPTIONS':
-        return '', 200
+# @automation_bp.route('/api/assessment-automation/status', methods=['GET', 'OPTIONS'])
+# def get_assessment_automation_status():
+#     """Get assessment automation system status"""
+#     if request.method == 'OPTIONS':
+#         return '', 200
     
-    try:
-        from app.services.assessment_automation_system import get_assessment_status
-        status = get_assessment_status()
+#     try:
+#         from app.services.assessment_automation_system import get_assessment_status
+#         status = get_assessment_status()
         
-        return jsonify({
-            'is_running': status['is_running'],
-            'last_run': status['last_run'],
-            'pass_threshold': status['pass_threshold'],
-            'statistics': status['statistics'],
-            'pending': status['pending'],
-            'next_check': 'In 10 minutes' if status['is_running'] else 'Stopped'
-        }), 200
+#         return jsonify({
+#             'is_running': status['is_running'],
+#             'last_run': status['last_run'],
+#             'pass_threshold': status['pass_threshold'],
+#             'statistics': status['statistics'],
+#             'pending': status['pending'],
+#             'next_check': 'In 10 minutes' if status['is_running'] else 'Stopped'
+#         }), 200
         
-    except Exception as e:
-        logger.error(f"Error getting assessment automation status: {e}")
-        return jsonify({"error": str(e)}), 500
+#     except Exception as e:
+#         logger.error(f"Error getting assessment automation status: {e}")
+#         return jsonify({"error": str(e)}), 500
 
 @automation_bp.route('/api/interview-automation/toggle', methods=['POST', 'OPTIONS'])
 @rate_limit(max_calls=5, time_window=60)
@@ -457,3 +457,39 @@ REMEMBER: Ask these questions one at a time, wait for complete responses, and as
 """
     
     return questions
+
+    # ── POST-ASSESSMENT AUTOMATION API ───────────────────────────────────────────
+# Add these routes to your existing automation_bp
+
+@automation_bp.route('/api/post-assessment/status', methods=['GET', 'OPTIONS'])
+def post_assessment_status():
+    """Get status of the 24/7 post-assessment automation"""
+    if request.method == 'OPTIONS':
+        return '', 200
+    try:
+        from app.services.post_assessment_automation import get_automation_status
+        return jsonify({"success": True, "automation": get_automation_status()}), 200
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 500
+
+
+@automation_bp.route('/api/post-assessment/run-now', methods=['POST', 'OPTIONS'])
+def post_assessment_run_now():
+    """Manually trigger one check cycle right now"""
+    if request.method == 'OPTIONS':
+        return '', 200
+    try:
+        from app.services.post_assessment_automation import run_once_now
+        data      = request.json or {}
+        job_title = data.get('job_title')
+        threading.Thread(
+            target=run_once_now,
+            args=(job_title,),
+            daemon=True
+        ).start()
+        return jsonify({
+            "success": True,
+            "message": f"Check triggered for: {job_title or 'ALL jobs'}"
+        }), 200
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 500
