@@ -16,6 +16,7 @@ from sqlalchemy import (
     Index, UniqueConstraint, inspect, text
 )
 from sqlalchemy.dialects.postgresql import JSON
+from sqlalchemy import JSON
 
 from sqlalchemy.orm import declarative_base, sessionmaker
 from sqlalchemy.pool import QueuePool
@@ -85,6 +86,7 @@ class Candidate(Base):
     github = Column(String(500))
     resume_path = Column(String(500))
     phone = Column(String(50))
+    department = Column(String(100))
 
     # Resume processing / ATS
     processed_date = Column(DateTime, default=datetime.now, nullable=False)
@@ -162,6 +164,17 @@ class Candidate(Base):
     interview_ai_summary = Column(Text)
     interview_ai_score = Column(Float)
 
+    # Auto-scoring trigger flags
+    interview_auto_score_triggered = Column(Boolean, default=False)
+    interview_analysis_started_at = Column(DateTime)
+    interview_analysis_completed_at = Column(DateTime)
+
+    # ── JD Matching (added for jd_matching.py) ──
+    match_type          = Column(String(50),  nullable=True)
+    match_score         = Column(Float,       nullable=True)
+    recommendation      = Column(String(50),  nullable=True)
+    auto_decision_taken = Column(Boolean,     default=False)
+
     # Interview Recording/Session
     interview_session_id = Column(String(200))
     interview_recording_file = Column(String(500))
@@ -225,10 +238,14 @@ class Candidate(Base):
             "id": self.id,
             "name": self.name,
             "email": self.email,
+            "phone": self.phone,
+            "department": self.department,
             "job_id": self.job_id,
             "job_title": self.job_title,
             "status": self.status,
             "ats_score": self.ats_score,
+            "score_reasoning": self.score_reasoning,     # ← add this
+            "decision_reason": self.decision_reason,
             "final_status": self.final_status,
             "exam_completed": self.exam_completed,
             "exam_percentage": self.exam_percentage,
@@ -367,6 +384,7 @@ def run_migrations() -> None:
         # (SQLite syntax used; for Postgres/MySQL, the SQL above still works for basic ADD COLUMN)
         migrations = [
             ("candidates", "phone", "VARCHAR(50)"),
+            ("candidates", "department", "VARCHAR(100)"),
             ("candidates", "assessment_id", "VARCHAR(100)"),
             ("candidates", "reminder_sent", "BOOLEAN DEFAULT FALSE"),
             ("candidates", "reminder_sent_date", "DATETIME"),
@@ -407,6 +425,11 @@ def run_migrations() -> None:
             ("candidates", "company_name", "VARCHAR(200)"),
             ("candidates", "job_description", "TEXT"),
             ("candidates", "interview_auto_score_triggered", "BOOLEAN DEFAULT FALSE"),
+            # ── JD Matching columns ──
+            ("candidates", "match_type",          "VARCHAR(50)"),
+            ("candidates", "match_score",         "FLOAT"),
+            ("candidates", "recommendation",      "VARCHAR(50)"),
+            ("candidates", "auto_decision_taken", "BOOLEAN DEFAULT FALSE"),
         ]
         for table, column, typ in migrations:
             try:

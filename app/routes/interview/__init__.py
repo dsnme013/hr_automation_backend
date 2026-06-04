@@ -6,6 +6,7 @@ from .avatar import avatar_bp
 from .automation import automation_bp
 from .debug import debug_bp
 from .helpers import helpers_bp
+from .jd_matching   import jd_matching_bp 
 
 __all__ = [
     "interview_core_bp",
@@ -16,6 +17,7 @@ __all__ = [
     "automation_bp",
     "debug_bp",
     "helpers_bp",
+    "jd_matching_bp",
 ]
 # from .interview_core import interview_core_bp
 

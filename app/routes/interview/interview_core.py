@@ -3786,150 +3786,327 @@ def clear_all_cache():
         logger.error(f"Error clearing cache: {e}")
         return jsonify({"error": str(e)}), 500
 
-def create_interview_landing_page(interview_data, token):
-    """Create the landing page HTML with reconnection support without illegal f-strings."""
-    import json
-    interview_json = json.dumps(interview_data)
+# def create_interview_landing_page(interview_data, token):
+#     """Create the landing page HTML with reconnection support without illegal f-strings."""
+#     import json
+#     interview_json = json.dumps(interview_data)
 
-    # Pre-build dynamic fragments (NO backslashes in f-string expressions):
-    is_reconnection = bool(interview_data.get('isReconnection'))
-    prev = interview_data.get('previousSessionData') or {}
+#     # Pre-build dynamic fragments (NO backslashes in f-string expressions):
+#     is_reconnection = bool(interview_data.get('isReconnection'))
+#     prev = interview_data.get('previousSessionData') or {}
+#     reconnect_block = ""
+#     if is_reconnection:
+#         reconnect_block = (
+#             "<div class=\"reconnect-info\">"
+#             "<h3> Welcome Back!</h3>"
+#             "<p>You're reconnecting to your interview session.</p>"
+#             f"<p><strong>Questions asked:</strong> {prev.get('questionsAsked', 0)}</p>"
+#             f"<p><strong>Questions answered:</strong> {prev.get('questionsAnswered', 0)}</p>"
+#             "</div>"
+#         )
+#     session_type_label = "Reconnection" if is_reconnection else "New Session"
+#     continue_or_start = "Continue" if is_reconnection else "Start"
+#     continue_lower = "continue" if is_reconnection else "start"
+#     progress_line = (
+#         f"<p><strong> Progress:</strong> {prev.get('questionsAnswered', 0)} questions completed</p>"
+#         if is_reconnection else ""
+#     )
+
+#     # Build the HTML
+#     now_str = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+#     candidate_name = interview_data['candidateName']
+#     position = interview_data['position']
+#     company = interview_data['company']
+#     knowledge_base_id = interview_data.get('knowledgeBaseId', '')
+#     candidate_id = interview_data['candidateId']
+
+#     return f"""<!DOCTYPE html>
+# <html>
+# <head>
+#   <title>AI Interview - {position}</title>
+#   <meta charset="UTF-8"/>
+#   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+#   <style>
+#     body {{
+#       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+#       margin: 0; padding: 0;
+#       background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+#       min-height: 100vh; display: flex; align-items: center; justify-content: center;
+#     }}
+#     .container {{
+#       background: white; padding: 2rem; border-radius: 15px;
+#       box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+#       text-align: center; max-width: 600px; width: 90%;
+#     }}
+#     .header {{ color: #333; margin-bottom: 1.5rem; }}
+#     .info-box {{
+#       background: #f8f9fa; padding: 1.5rem; border-radius: 10px;
+#       margin: 1rem 0; border-left: 5px solid #667eea;
+#     }}
+#     .reconnect-info {{
+#       background: #e3f2fd; padding: 1rem; border-radius: 8px;
+#       margin: 1rem 0; border-left: 5px solid #2196f3;
+#     }}
+#     .success-badge {{ color: #28a745; font-weight: bold; font-size: 1.1em; }}
+#     .start-btn {{
+#       background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+#       color: white; padding: 15px 30px; border: none; border-radius: 50px;
+#       cursor: pointer; font-size: 18px; font-weight: bold; text-decoration: none;
+#       display: inline-block; margin: 20px 10px; transition: transform 0.3s, box-shadow 0.3s;
+#     }}
+#     .start-btn:hover {{ transform: translateY(-2px); box-shadow: 0 10px 25px rgba(102,126,234,0.3); }}
+#     .instructions {{ text-align: left; margin: 1.5rem 0; padding: 1.5rem; background: #e3f2fd; border-radius: 10px; }}
+#     .debug-info {{ background: #fff3cd; padding: 1rem; border-radius: 8px; font-size: 14px; margin-top: 15px; text-align: left; }}
+#   </style>
+# </head>
+# <body>
+#   <div class="container">
+#     <h1 class="header">ðŸ¤– AI Interview Portal</h1>
+
+#     {reconnect_block}
+
+#     <div class="info-box">
+#       <p><strong> Candidate:</strong> {candidate_name}</p>
+#       <p><strong> Position:</strong> {position}</p>
+#       <p><strong> Company:</strong> {company}</p>
+#       <p class="success-badge"> Interview Link Active & Ready</p>
+#       <p><strong> Session Type:</strong> {session_type_label}</p>
+#     </div>
+
+#     <div class="instructions">
+#       <h3> Before {continue_or_start} Your Interview:</h3>
+#       <ul>
+#         <li><strong>Internet:</strong> Ensure stable connection</li>
+#         <li><strong>Camera & Mic:</strong> Test and allow permissions</li>
+#         <li><strong>Environment:</strong> Find a quiet, well-lit space</li>
+#         <li><strong>Materials:</strong> Have your resume ready</li>
+#       </ul>
+#     </div>
+
+#     <div style="margin: 25px 0;">
+#       <p><strong>â± Duration:</strong> 30-45 minutes</p>
+#       <p><strong> Format:</strong> AI-powered video interview</p>
+#       {progress_line}
+#     </div>
+
+#     <button onclick="startInterview()" class="start-btn"> {continue_or_start} AI Interview</button>
+
+#     <div class="debug-info">
+#       <strong> System Status:</strong><br/>
+#       Token: {token}<br/>
+#       Knowledge Base: {knowledge_base_id}<br/>
+#       Candidate ID: {candidate_id}<br/>
+#       Status: Ready <br/>
+#       Session Type: {session_type_label}<br/>
+#       Time: {now_str}
+#     </div>
+
+#     <div style="margin-top: 30px; font-size: 12px; color: #666;">
+#       <p> Need help? Contact our support team</p>
+#       <p> Interview link valid for multiple sessions</p>
+#     </div>
+#   </div>
+
+#   <script>
+#     const interviewData = {interview_json};
+#     function startInterview() {{
+#       console.log(' Starting interview with data:', interviewData);
+#       sessionStorage.setItem('interviewData', JSON.stringify(interviewData));
+#       fetch('/api/avatar/interview/{token}', {{
+#         method: 'POST',
+#         headers: {{ 'Content-Type': 'application/json' }},
+#         body: JSON.stringify({{ action: '{continue_lower}' }})
+#       }}).catch(() => {{ /* best effort */ }});
+#       window.location.href = 'http://localhost:3001/interview/{token}';
+#     }}
+
+#     fetch('/api/interview/validate-token/{token}', {{ method: 'POST' }})
+#       .then(r => r.json())
+#       .then(d => {{
+#         if (!d.valid) {{
+#           alert('This interview link has expired. Please contact HR for assistance.');
+#           document.querySelector('.start-btn').disabled = true;
+#         }}
+#       }})
+#       .catch(() => {{ /* noop */ }});
+#   </script>
+# </body>
+# </html>"""
+def create_interview_landing_page(interview_data, token):
+    """Create the interview landing page HTML."""
+    import json as _json
+    interview_json = _json.dumps(interview_data)
+ 
+    is_reconnection    = bool(interview_data.get('isReconnection'))
+    prev               = interview_data.get('previousSessionData') or {}
+    session_type_label = "Reconnection" if is_reconnection else "New Session"
+    continue_or_start  = "Continue"     if is_reconnection else "Start"
+    continue_lower     = "continue"     if is_reconnection else "start"
+ 
     reconnect_block = ""
     if is_reconnection:
         reconnect_block = (
-            "<div class=\"reconnect-info\">"
-            "<h3> Welcome Back!</h3>"
+            '<div class="reconnect-info">'
+            "<h3>Welcome Back!</h3>"
             "<p>You're reconnecting to your interview session.</p>"
             f"<p><strong>Questions asked:</strong> {prev.get('questionsAsked', 0)}</p>"
             f"<p><strong>Questions answered:</strong> {prev.get('questionsAnswered', 0)}</p>"
             "</div>"
         )
-    session_type_label = "Reconnection" if is_reconnection else "New Session"
-    continue_or_start = "Continue" if is_reconnection else "Start"
-    continue_lower = "continue" if is_reconnection else "start"
+ 
     progress_line = (
-        f"<p><strong> Progress:</strong> {prev.get('questionsAnswered', 0)} questions completed</p>"
+        f"<p><strong>Progress:</strong> {prev.get('questionsAnswered', 0)} questions completed</p>"
         if is_reconnection else ""
     )
-
-    # Build the HTML
-    now_str = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-    candidate_name = interview_data['candidateName']
-    position = interview_data['position']
-    company = interview_data['company']
-    knowledge_base_id = interview_data.get('knowledgeBaseId', '')
-    candidate_id = interview_data['candidateId']
-
+ 
+    now_str           = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+    candidate_name    = interview_data['candidateName']
+    position          = interview_data['position']
+    company           = interview_data['company']
+    candidate_id      = interview_data['candidateId']
+ 
+    # FIX 1: pass knowledge_base_id through (was commented out at line 125)
+    knowledge_base_id = interview_data.get('knowledgeBaseId') or ''
+ 
+    # FIX 2: read interview frontend URL from environment so it works on
+    #         Cloudflare / EC2 / any deployed URL — NOT hardcoded localhost:3001
+    frontend_base = os.getenv('INTERVIEW_FRONTEND_URL', '').rstrip('/')
+    # If no env var set, use a relative path on the same origin (Flask serves it)
+    if frontend_base:
+        interview_page_url = f"{frontend_base}/interview/{token}"
+    else:
+        interview_page_url = f"/interview/{token}"
+ 
     return f"""<!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
   <title>AI Interview - {position}</title>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <style>
+    *, *::before, *::after {{ box-sizing: border-box; margin: 0; padding: 0; }}
     body {{
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-      margin: 0; padding: 0;
       background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
       min-height: 100vh; display: flex; align-items: center; justify-content: center;
+      padding: 20px;
     }}
     .container {{
-      background: white; padding: 2rem; border-radius: 15px;
-      box-shadow: 0 20px 40px rgba(0,0,0,0.1);
-      text-align: center; max-width: 600px; width: 90%;
+      background: #fff; padding: 2rem; border-radius: 16px;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+      text-align: center; max-width: 600px; width: 100%;
     }}
-    .header {{ color: #333; margin-bottom: 1.5rem; }}
+    .header {{ color: #333; margin-bottom: 1.5rem; font-size: 1.6rem; }}
     .info-box {{
-      background: #f8f9fa; padding: 1.5rem; border-radius: 10px;
-      margin: 1rem 0; border-left: 5px solid #667eea;
+      background: #f8f9fa; padding: 1.4rem; border-radius: 10px;
+      margin: 1rem 0; border-left: 5px solid #667eea; text-align: left;
     }}
+    .info-box p {{ margin: 6px 0; font-size: 14px; }}
     .reconnect-info {{
       background: #e3f2fd; padding: 1rem; border-radius: 8px;
-      margin: 1rem 0; border-left: 5px solid #2196f3;
+      margin: 1rem 0; border-left: 5px solid #2196f3; text-align: left;
     }}
-    .success-badge {{ color: #28a745; font-weight: bold; font-size: 1.1em; }}
+    .success-badge {{ color: #28a745; font-weight: bold; font-size: 1em; }}
+    .instructions {{ text-align: left; margin: 1.4rem 0; padding: 1.4rem; background: #e3f2fd; border-radius: 10px; }}
+    .instructions li {{ margin: 6px 0; font-size: 14px; }}
     .start-btn {{
       background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      color: white; padding: 15px 30px; border: none; border-radius: 50px;
-      cursor: pointer; font-size: 18px; font-weight: bold; text-decoration: none;
-      display: inline-block; margin: 20px 10px; transition: transform 0.3s, box-shadow 0.3s;
+      color: #fff; padding: 14px 32px; border: none; border-radius: 50px;
+      cursor: pointer; font-size: 17px; font-weight: bold;
+      display: inline-block; margin: 20px 10px;
+      transition: transform .25s, box-shadow .25s;
     }}
-    .start-btn:hover {{ transform: translateY(-2px); box-shadow: 0 10px 25px rgba(102,126,234,0.3); }}
-    .instructions {{ text-align: left; margin: 1.5rem 0; padding: 1.5rem; background: #e3f2fd; border-radius: 10px; }}
-    .debug-info {{ background: #fff3cd; padding: 1rem; border-radius: 8px; font-size: 14px; margin-top: 15px; text-align: left; }}
+    .start-btn:hover {{ transform: translateY(-2px); box-shadow: 0 10px 25px rgba(102,126,234,.35); }}
+    .start-btn:disabled {{ opacity: .5; cursor: not-allowed; transform: none; }}
+    .debug-info {{
+      background: #fff3cd; padding: 1rem; border-radius: 8px;
+      font-size: 13px; margin-top: 15px; text-align: left;
+      border: 1px solid #ffc107; word-break: break-all;
+    }}
   </style>
 </head>
 <body>
   <div class="container">
-    <h1 class="header">ðŸ¤– AI Interview Portal</h1>
-
+    <h1 class="header">🤖 AI Interview Portal</h1>
+ 
     {reconnect_block}
-
+ 
     <div class="info-box">
-      <p><strong> Candidate:</strong> {candidate_name}</p>
-      <p><strong> Position:</strong> {position}</p>
-      <p><strong> Company:</strong> {company}</p>
-      <p class="success-badge"> Interview Link Active & Ready</p>
-      <p><strong> Session Type:</strong> {session_type_label}</p>
+      <p><strong>Candidate:</strong> {candidate_name}</p>
+      <p><strong>Position:</strong> {position}</p>
+      <p><strong>Company:</strong> {company}</p>
+      <p class="success-badge">✅ Interview Link Active &amp; Ready</p>
+      <p><strong>Session Type:</strong> {session_type_label}</p>
     </div>
-
+ 
     <div class="instructions">
-      <h3> Before {continue_or_start} Your Interview:</h3>
+      <h3>Before {continue_or_start} Your Interview:</h3>
       <ul>
         <li><strong>Internet:</strong> Ensure stable connection</li>
-        <li><strong>Camera & Mic:</strong> Test and allow permissions</li>
+        <li><strong>Camera &amp; Mic:</strong> Test and allow permissions</li>
         <li><strong>Environment:</strong> Find a quiet, well-lit space</li>
         <li><strong>Materials:</strong> Have your resume ready</li>
       </ul>
     </div>
-
-    <div style="margin: 25px 0;">
-      <p><strong>â± Duration:</strong> 30-45 minutes</p>
-      <p><strong> Format:</strong> AI-powered video interview</p>
+ 
+    <div style="margin:22px 0; font-size:14px;">
+      <p><strong>Duration:</strong> 30–45 minutes</p>
+      <p><strong>Format:</strong> AI-powered video interview</p>
       {progress_line}
     </div>
-
-    <button onclick="startInterview()" class="start-btn"> {continue_or_start} AI Interview</button>
-
+ 
+    <button onclick="startInterview()" class="start-btn" id="startBtn">
+      {continue_or_start} AI Interview
+    </button>
+ 
     <div class="debug-info">
-      <strong> System Status:</strong><br/>
+      <strong>System Status:</strong><br/>
       Token: {token}<br/>
-      Knowledge Base: {knowledge_base_id}<br/>
+      Knowledge Base: {knowledge_base_id or '(none)'}<br/>
       Candidate ID: {candidate_id}<br/>
-      Status: Ready <br/>
-      Session Type: {session_type_label}<br/>
+      Status: Ready ✅<br/>
+      Session: {session_type_label}<br/>
       Time: {now_str}
     </div>
-
-    <div style="margin-top: 30px; font-size: 12px; color: #666;">
-      <p> Need help? Contact our support team</p>
-      <p> Interview link valid for multiple sessions</p>
+ 
+    <div style="margin-top:26px; font-size:12px; color:#777;">
+      <p>Need help? Contact our HR support team.</p>
     </div>
   </div>
-
+ 
   <script>
     const interviewData = {interview_json};
+ 
     function startInterview() {{
-      console.log(' Starting interview with data:', interviewData);
+      const btn = document.getElementById('startBtn');
+      btn.disabled = true;
+      btn.textContent = 'Starting…';
+ 
       sessionStorage.setItem('interviewData', JSON.stringify(interviewData));
+ 
+      // Notify backend the session is starting (best-effort)
       fetch('/api/avatar/interview/{token}', {{
-        method: 'POST',
+        method:  'POST',
         headers: {{ 'Content-Type': 'application/json' }},
-        body: JSON.stringify({{ action: '{continue_lower}' }})
-      }}).catch(() => {{ /* best effort */ }});
-      window.location.href = 'http://localhost:3001/interview/{token}';
+        body:    JSON.stringify({{ action: '{continue_lower}' }})
+      }}).catch(() => {{}});
+ 
+      // FIX 2: use env-configured URL, not hardcoded localhost:3001
+      window.location.href = '{interview_page_url}';
     }}
-
+ 
+    // Validate token on load — disable button if expired / already completed
     fetch('/api/interview/validate-token/{token}', {{ method: 'POST' }})
       .then(r => r.json())
       .then(d => {{
         if (!d.valid) {{
-          alert('This interview link has expired. Please contact HR for assistance.');
-          document.querySelector('.start-btn').disabled = true;
+          const btn = document.getElementById('startBtn');
+          btn.disabled = true;
+          btn.textContent = 'Link Expired';
+          alert(d.message || 'This interview link has expired. Please contact HR for assistance.');
         }}
       }})
-      .catch(() => {{ /* noop */ }});
+      .catch(() => {{ /* noop — offline or network issue */ }});
   </script>
 </body>
 </html>"""
-
