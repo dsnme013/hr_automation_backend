@@ -406,7 +406,7 @@ import sys
 from playwright.async_api import async_playwright, Page
 
 # ─── CONFIG ──────────────────────────────────────────────────────────────────
-BASE_URL = "http://13.201.5.251:3000/"
+BASE_URL = "https://hrhiringassessmentrequirment-production.up.railway.app"
 ANTHROPIC_API_KEY = ""   # Optional: paste your key for unknown job titles
 DEFAULT_DURATION  = 60
 HEADLESS = True

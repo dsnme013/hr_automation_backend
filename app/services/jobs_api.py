@@ -291,7 +291,7 @@ Return shape (matches what app/routes/jobs.py → get_cached_jobs expects):
             "applications": 0,
             "status":       "Active",
             "description":  "Job description for python developer",
-            "postingUrl":   "http://13.233.81.136.nip.io/jobs/1",
+            "postingUrl":   "https://3.109.201.45.nip.io/",
         },
         ...
     ]
@@ -309,10 +309,10 @@ logger = logging.getLogger(__name__)
 
 # ── Config ─────────────────────────────────────────────────────────────────────
 # Public-facing React frontend (careers page visible in screenshot)
-CAREERS_BASE = "http://13.233.81.136.nip.io"
+CAREERS_BASE = "https://hrmgcvclone-production.up.railway.app"
 
 # Internal admin backend (original scraping target)
-ADMIN_BASE = "http://65.1.136.77"
+ADMIN_BASE = "https://hrmgcvclone-production.up.railway.app"
 
 REQUEST_TIMEOUT = 15  # seconds per request
 

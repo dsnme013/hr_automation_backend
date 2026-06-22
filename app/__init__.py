@@ -282,7 +282,7 @@ def create_app(config_object: str | None = None):
 
     # Enable CORS
     CORS(app,
-         origins=["http://localhost:3000", "http://127.0.0.1:3000", "http://127.0.0.1:3001", "http://localhost:8080","https://mgcv-final-frontend.vercel.app","https://hr-frontend-update-mgcv.vercel.app","https://ui-change-frontend-hr.vercel.app","update-frontend-hr-automation.vercel.app"],
+         origins=["http://localhost:3000", "http://127.0.0.1:3000", "http://127.0.0.1:3001", "http://localhost:8080","https://mgcv-final-frontend.vercel.app","https://hr-frontend-update-mgcv.vercel.app","https://ui-change-frontend-hr.vercel.app","update-frontend-hr-automation.vercel.app","https://1f1c-2401-4900-1cb1-b8a3-d592-99b5-934e-17f8.ngrok-free.app"],
          allow_headers=["Content-Type", "Authorization", "X-Requested-With", "Accept", "Cache-Control", "X-Api-Key"],
          methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
          supports_credentials=True,

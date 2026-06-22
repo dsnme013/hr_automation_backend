@@ -302,7 +302,7 @@ from datetime import datetime
 from playwright.async_api import async_playwright
 
 # ─── CONFIG ──────────────────────────────────────────────────────────────────
-BASE_URL = "http://13.201.5.251:3000"
+BASE_URL = "https://hrhiringassessmentrequirment-production.up.railway.app"
 HEADLESS = True
 # ─────────────────────────────────────────────────────────────────────────────
 
